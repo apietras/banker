@@ -4,6 +4,7 @@ import com.pietras.dao.TransactionRepository;
 import com.pietras.model.Account;
 import com.pietras.model.Transaction;
 import com.pietras.service.TransactionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.UUID;
  * Created by aniapietras on 11.10.2016.
  */
 @Service
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
 
@@ -33,7 +35,9 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal currentBalance = transactionAccount.getBalance();
         BigDecimal newBalance = currentBalance.add(transaction.getAmount());
         transactionAccount.setBalance(newBalance);
-        return transactionRepository.save(transaction);
+        Transaction createdTransaction= transactionRepository.save(transaction);
+        log.info("Transaction with id {} was created", createdTransaction.getId());
+        return createdTransaction;
 
     }
 

@@ -37,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
         account.setId(UUID.randomUUID().toString());
         account.setBalance(new BigDecimal(0.0));
         Account savedAccount = accountRepository.save(account);
+        log.info("Account with id {} was created", savedAccount.getId());
 
         Transaction transaction = Transaction.builder()
                 .account(savedAccount)
@@ -57,7 +58,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account updateAccount(Account account) {
-        return accountRepository.save(account);
-
+        Account updatedAccount=  accountRepository.save(account);
+        log.info("Account with id {} was updated", updatedAccount.getId());
+        return updatedAccount;
     }
 }

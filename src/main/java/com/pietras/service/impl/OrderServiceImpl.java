@@ -6,6 +6,7 @@ import com.pietras.model.Transaction;
 import com.pietras.service.AccountService;
 import com.pietras.service.OrderService;
 import com.pietras.service.TransactionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Created by aniapietras on 11.10.2016.
  */
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -36,10 +38,13 @@ public class OrderServiceImpl implements OrderService {
     public Order createOrder(Order order) {
         BigDecimal currentBalance = accountService.getAccount(order.getSource().getId()).getBalance();
         if (currentBalance.compareTo(order.getAmount()) < 0) {
+            log.warn("Account {} balance is too low to perform operation", order.getSource().getId());
             throw new IllegalStateException("Account balance is too low to perform operation");
+
         }
         order.setId(UUID.randomUUID().toString());
         Order savedOrder = orderRepository.save(order);
+        log.info("Order with id {} was created", savedOrder.getId());
         createOrderTransactions(savedOrder);
         return savedOrder;
 
@@ -69,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Scheduled(cron = "1 0 0 * * *")
     public void executeRecurrentOrder() {
-
+        log.info("Executing recurrent orders");
         List<Order> recurrentOrders = orderRepository.findByRecurringTrue();
         recurrentOrders.forEach(this::createOrderTransactions);
 
